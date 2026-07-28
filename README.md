@@ -1,102 +1,47 @@
 # 万相台企业报表自动化 Agent
 
-这个项目用于把淘宝/天猫运营人员从生意参谋、万相台无界版导出的原始 Excel/CSV 报表，自动生成可交付的万相台月报、周报或半月报。
+把淘宝/天猫运营人员从生意参谋、万相台无界版导出的原始 Excel、CSV 或截图，自动转换为可交付的万相台月报、半月报或周报。
 
-企业用户可以只上传一个文件夹，Agent 会自动完成报表识别、数据校验、确定性计算、分析文案生成、Excel 填充、美化排版和交付清单输出。
+这个项目面向企业内部运营场景：用户只需上传一个报表文件夹，Agent 会完成文件识别、数据校验、确定性指标计算、分析文案生成、Excel 模板填充与交付清单输出。
 
-## 核心流程
+![万相台企业报表自动化 Agent 工作流](https://raw.githubusercontent.com/xiangbuchu77/wanxiangtai-monthly-report/main/dashboard/public/og.png)
 
-1. 用户上传原始 Excel/CSV 表格或一个报表文件夹。
-2. Agent 自动识别报表类型、清洗字段、按周期汇总数据。
-3. 默认生成月报；用户指定周报或半月报时按要求生成。
-4. 用户未指定月份/周期时，默认只生成数据里最近一个可生成周期；用户明确要求多周期时再按周期拆分生成。
-5. 如果缺少核心数据，输出缺失清单并说明需要补哪些报表。
-6. 如果数据齐全，生成最终 Excel 报表，并删除广告半成品临时文件。
-7. AI 只介入文字分析字段：
-   - 主要商品数据的操作建议
-   - 四、下月推广规划
-   - 五、运营总结与建议
-8. 脚本把数值和 AI 文案写入模板，并统一字体、边框、列宽、换行和合并单元格。
+## 为什么做这个项目
 
-## 关键原则
+电商运营月报通常要从多份结构不同的报表中整理数据，再人工计算指标、填写模板并撰写结论。这个 Agent 把重复、易错的步骤收敛为一条可检查的交付链路：**程序计算数字，模型只辅助解释数字。**
 
-- 数值字段必须由 Python 确定性计算。
-- AI 不得编造数字。
-- AI 不负责计算指标，只负责基于半成品数据生成具体分析文案。
-- 缺少店铺收益核心指标时才阻断，并且必须提示具体缺少的数据内容，例如“店铺总访客数”“店铺总成交金额（元）”“店铺支付转化率”；不要用“月度推广核心指标总览数据”这类文件/模块名代替指标名。
-- 非核心增强文件缺失时生成简版，并在交付说明里提示建议补充。
+## 能做什么
 
-## 企业入口
+- 接收 Excel、CSV、ZIP、截图和补充说明材料，不要求固定文件名。
+- 自动识别文件类型、清洗字段，并按最新有效日期生成月报、半月报或周报。
+- 对店铺收益、广告花费、成交金额、ROI、CPC、点击量等指标进行确定性计算。
+- 只在需要判断的文字区域使用 AI，例如商品操作建议、推广规划和运营总结。
+- 严格写入既有 Excel 模板，保留合并单元格、边框、列宽和数值格式。
+- 输出最终 Excel、缺失数据说明、标准经营总表和交付清单；临时半成品会自动清理。
 
-```bash
-python -m taobao_report_mvp.enterprise_agent /path/to/uploaded_reports --template /path/to/万相台月报模板.xlsx
-```
+## 工作流
 
-安装为命令行脚本后：
+1. **接收文件**：识别上传的结构化报表、压缩包和截图，并归类到同一任务。
+2. **识别请求**：根据用户指令判断需要生成月报、半月报还是周报。
+3. **计算与校验**：统一周期、校验核心指标，明确指出缺少的具体数据项。
+4. **填充模板**：把计算结果写入对应报表模板，同时保持模板布局不变。
+5. **生成分析**：模型只补充基于数据的业务解释与操作建议，不参与数值计算。
+6. **交付与清理**：输出用户指定的最终 Excel，并清理中间文件。
 
-```bash
-wanxiangtai-agent /path/to/uploaded_reports --template /path/to/万相台月报模板.xlsx
-```
+## 规则与模型的边界
 
-## 钉钉企业入口
+| 由 Python 确定 | 由 AI 辅助 |
+| --- | --- |
+| 指标汇总与环比计算 | 商品操作建议 |
+| ROI、CPC、点击量和成交金额 | 下周期推广规划 |
+| 周期判断与模板填充 | 运营总结与业务解读 |
+| 数据缺失检查与交付清单 | 仅在有证据时生成文字结论 |
 
-面向企业员工使用时，推荐部署为统一 Web 服务并嵌入钉钉 H5 应用。这样员工不再需要区分 macOS 或 Windows，也不需要安装本地启动包。
+AI 不得编造数字，也不负责计算指标；模型未返回有效结论时会保留空白。
 
-```bash
-PYTHONPATH=src python3 start_dingtalk_service.py
-```
+## 交付内容
 
-默认监听：
-
-```text
-http://服务器地址:8788
-```
-
-钉钉接入方式见：
-
-```text
-docs/DINGTALK_INTEGRATION.md
-```
-
-## QClaw 本地入口
-
-当前桌面侧只保留 QClaw/钉钉服务入口，不再维护旧的本地网页启动包。QClaw 调用本地 Agent 时会自动启动服务；也可以手动双击：
-
-```text
-启动QClaw万相台Agent.command
-```
-
-默认监听：
-
-```text
-http://127.0.0.1:8799
-```
-
-生成成功后，QClaw skill 会调用系统打开最终 `.xlsx`，用户无需复制本地路径。
-
-生成周报：
-
-```bash
-wanxiangtai-agent /path/to/uploaded_reports --report-type 周报
-```
-
-生成半月报：
-
-```bash
-wanxiangtai-agent /path/to/uploaded_reports --report-type 半月报
-```
-
-指定某个周期：
-
-```bash
-wanxiangtai-agent /path/to/uploaded_reports --target 2026-05
-wanxiangtai-agent /path/to/uploaded_reports --report-type 半月报 --target 2026-05上半月
-wanxiangtai-agent /path/to/uploaded_reports --report-type 周报 --target 2026-05-04~2026-05-10
-```
-
-## 输出内容
-
-企业入口会生成：
+企业入口在数据足够时会生成：
 
 - `00_数据缺失与识别报告.xlsx`
 - `01_标准经营总表.xlsx`
@@ -106,42 +51,79 @@ wanxiangtai-agent /path/to/uploaded_reports --report-type 周报 --target 2026-0
 - `enterprise_manifest.json`
 - `交付说明.md`
 
-说明：
+`02_月报数据半成品_广告汇总.xlsx` 只作为临时文件使用，最终交付前会被删除。多个周期会拆分为带日期后缀的独立报表。
 
-- `02_月报数据半成品_广告汇总.xlsx` 是临时文件，最终版生成后会自动删除。
-- 如果核心数据里包含多个周期，最终报表会带周期后缀，例如 `05_万相台月报_最终版_2026-05.xlsx`。
-- 如果部分周期缺核心数据，只生成可用周期，缺失周期进入交付说明和识别报告。
+## 快速开始
 
-## 核心输入
+安装项目依赖后，传入包含原始报表的目录和 Excel 模板：
 
-最简生成优先依赖“店铺收益”相关数据，而不是固定文件名。文件可以任意命名，Agent 会按字段和数据结构识别。
+```bash
+python -m taobao_report_mvp.enterprise_agent /path/to/uploaded_reports \
+  --template /path/to/万相台月报模板.xlsx
+```
 
-最小阻塞指标通常是：
+安装为命令行脚本后：
+
+```bash
+wanxiangtai-agent /path/to/uploaded_reports \
+  --template /path/to/万相台月报模板.xlsx
+```
+
+指定输出类型或周期：
+
+```bash
+wanxiangtai-agent /path/to/uploaded_reports --report-type 周报
+wanxiangtai-agent /path/to/uploaded_reports --report-type 半月报 --target 2026-05上半月
+wanxiangtai-agent /path/to/uploaded_reports --target 2026-05
+```
+
+## 部署入口
+
+### 企业 Web / 钉钉
+
+推荐部署为统一 Web 服务并嵌入钉钉 H5 应用，让员工在浏览器或钉钉内直接提交报表任务：
+
+```bash
+PYTHONPATH=src python3 start_dingtalk_service.py
+```
+
+默认监听 `http://服务器地址:8788`。钉钉接入说明见 `docs/DINGTALK_INTEGRATION.md`。
+
+### QClaw 本地入口
+
+桌面侧保留 QClaw 与钉钉服务入口。QClaw 调用本地 Agent 时会自动启动服务，也可以手动运行：
+
+```text
+启动QClaw万相台Agent.command
+```
+
+默认监听 `http://127.0.0.1:8799`。生成成功后，QClaw 会调用系统打开最终 `.xlsx`。
+
+## 数据要求
+
+项目通过字段和数据结构识别报表，不依赖固定文件名。最小阻塞指标通常是：
 
 - 店铺总访客数
 - 店铺总成交金额（元）
 - 店铺支付转化率
 
-广告相关指标如“广告总花费（元）”“广告带来的成交金额（元）”“广告投入产出比（ROI）”“平均点击成本（元）”“总点击量”能从上传数据中识别或计算时就自动补入；缺少时只作为建议补充，不应固定要求用户补某个指定文件。
+广告花费、广告成交金额、ROI、CPC 和点击量会从上传数据中识别或计算；缺失时作为建议补充，而不阻断简版报表的生成。
 
-只有部分核心数据时，Agent 会尽量生成简版报表，并略去主要商品、计划明细等无数据模块。
+建议额外上传商品整体效果、计划、商品、流量来源、商品经营投产比和关键词等报表，以提高商品、计划、关键词、人群与流量来源分析的颗粒度。
 
-## 建议输入
+## 仓库结构
 
-- 商品整体效果月报
-- 计划报表
-- 商品报表
-- 店铺流量来源构成月报新版/旧版
-- 商品流量来源构成月报新版/旧版
-- 商品经营投产比核心日报
-- 关键词报表
+```text
+src/                 核心 Agent、报表识别与计算逻辑
+runtime/             企业服务与 Excel 渲染能力
+dashboard/           工作流可视化页面
+skills/              QClaw Skill、提示词与报表模板
+tests/               核心流程测试
+```
 
-建议输入不阻断生成，但会提升商品、计划、关键词、人群和流量来源分析颗粒度。
-
-## 内部工作流入口
-
-如需调试内部流程：
+## 内部调试
 
 ```bash
-python -m taobao_report_mvp.report_workflow_agent <原始表格1> <原始表格2> --output-dir outputs/run
+python -m taobao_report_mvp.report_workflow_agent <原始表格1> <原始表格2> \
+  --output-dir outputs/run
 ```
