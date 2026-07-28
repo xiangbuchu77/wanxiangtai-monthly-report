@@ -1,0 +1,21 @@
+[project]
+name = "wanxiangtai-monthly-report-agent"
+version = "0.1.0"
+description = "淘宝/天猫生意参谋与万相台月报自动化 agent"
+requires-python = ">=3.10"
+dependencies = [
+  "pandas",
+  "openpyxl",
+  "Pillow"
+]
+
+[project.scripts]
+wanxiangtai-agent = "taobao_report_mvp.enterprise_agent:main"
+wanxiangtai-workflow = "taobao_report_mvp.report_workflow_agent:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

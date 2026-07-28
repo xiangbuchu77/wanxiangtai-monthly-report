@@ -1,0 +1,16 @@
+service: report
+runtime: ../runtime
+templates:
+  month: templates/万相台月报模板.xlsx
+  half-month: templates/万相台半月报模板.xlsx
+  week: templates/万相台周报模板.xlsx
+periods:
+  month:
+    window_days: 30
+  half-month:
+    window_days: 15
+  week:
+    window_days: 7
+output:
+  format: xlsx
+  open_after_generate: true

@@ -1,0 +1,31 @@
+# Python runtime artifacts
+.venv/
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Generated reports, service state, and logs
+outputs/
+最终月报/
+runtime/services/cache/
+logs/
+*.log
+*.tmp
+
+# QClaw/OpenClaw local state and nested workspace
+qclaw_monthly_report_workspace/
+.openclaw/
+
+# OS metadata and archives
+.DS_Store
+Thumbs.db
+*.zip
