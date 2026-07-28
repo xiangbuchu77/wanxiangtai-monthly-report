@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "万相台报表工作流看板",
       description: "万相台报表从数据投喂、周期计算、模板填充到 Excel 交付的工作流。",
       type: "website",
-      images: [{ url: "/og.png", width: 1672, height: 941, alt: "万相台报表运营看板" }],
+      images: [{ url: "/og.png", width: 1600, height: 1000, alt: "万相台报表工作流看板" }],
     },
     twitter: {
       card: "summary_large_image",
