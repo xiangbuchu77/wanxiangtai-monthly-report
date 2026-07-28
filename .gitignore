@@ -29,3 +29,8 @@ qclaw_monthly_report_workspace/
 .DS_Store
 Thumbs.db
 *.zip
+
+# Dashboard build artifacts
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.wrangler/
