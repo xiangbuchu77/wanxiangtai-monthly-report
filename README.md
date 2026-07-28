@@ -87,7 +87,7 @@ wanxiangtai-agent /path/to/uploaded_reports --target 2026-05
 PYTHONPATH=src python3 start_dingtalk_service.py
 ```
 
-默认监听 `http://服务器地址:8788`。钉钉接入说明见 `docs/DINGTALK_INTEGRATION.md`。
+默认监听 `http://服务器地址:8788`。
 
 ### QClaw 本地入口
 
